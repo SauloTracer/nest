@@ -4,7 +4,7 @@ import { Controller, Get, Post, Patch, Delete, Param } from '@nestjs/common';
 export class EventsController {
   @Get()
   findAll() {
-      return 'FindAll called successfully';
+    return 'FindAll called successfully';
   }
   @Get(':id')
   findOne(@Param('id') id) {

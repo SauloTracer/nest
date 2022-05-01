@@ -1,7 +1,7 @@
 # nest
 Udemy course Master NestJS - The JavaScript Node.js Framework
 
-## Userfull nest/nest-cli commands
+## Usefull nest/nest-cli commands
 
 ### npm install -g @nestjs/cli
 ### nest new project-name
