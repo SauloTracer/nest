@@ -36,13 +36,17 @@ export class EventsController {
     return event;
   }
   @Patch(':id')
-  update(@Param('id') id: number, @Body() input: UpdateEventDTO) {
-    const index = this.events.findIndex((event) => event.id === id);
+  update(@Param('id') id, @Body() input: UpdateEventDTO) {
+    const index = this.events.findIndex((event) => event.id === parseInt(id));
+
+    if (index < 0) return null;
 
     this.events[index] = {
       ...this.events[index],
       ...input,
-      when: input.when ? new Date(input.when) : this.events[index].when,
+      when: input?.when
+      ? new Date(input?.when)
+      : this.events[index]?.when || null,
     };
 
     return this.events[index];
