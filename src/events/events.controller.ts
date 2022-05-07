@@ -8,36 +8,48 @@ import {
   Body,
   HttpCode,
 } from '@nestjs/common';
-import { CreateEventDTO } from '../create-event.dto';
-import { UpdateEventDTO } from '../update-event.dto';
+import { CreateEventDTO } from './create-event.dto';
+import { UpdateEventDTO } from './update-event.dto';
+import { Event } from './event.entity';
 
 @Controller('events')
 export class EventsController {
-  mockData = [
-    { id: 1, name: 'Event 1', description: 'Evento de teste 1' },
-    { id: 2, name: 'Event 2', description: 'Evento de teste 2' },
-  ];
+  private events: Event[] = [];
 
   @Get()
   findAll() {
-    return this.mockData;
+    return this.events;
   }
   @Get(':id')
   findOne(@Param('id') id) {
-    const res = this.mockData.find((x) => x.id == id);
+    const res = this.events.find((x) => x.id === parseInt(id));
     return res ? res : { error: 'Evento não encontrado' };
   }
   @Post()
   create(@Body() input: CreateEventDTO) {
-    return input;
+    const event = {
+      ...input,
+      when: new Date(input.when),
+      id: this.events.reduce((t, event) => (t = Math.max(t, event.id)), 0) + 1,
+    };
+    this.events.push(event);
+    return event;
   }
   @Patch(':id')
   update(@Param('id') id: number, @Body() input: UpdateEventDTO) {
-    return input;
+    const index = this.events.findIndex((event) => event.id === id);
+
+    this.events[index] = {
+      ...this.events[index],
+      ...input,
+      when: input.when ? new Date(input.when) : this.events[index].when,
+    };
+
+    return this.events[index];
   }
-  @Delete()
+  @Delete(':id')
   @HttpCode(204)
-  remove() {
-    return;
+  remove(@Param('id') id) {
+    this.events = this.events.filter((event) => event.id !== parseInt(id));
   }
 }
