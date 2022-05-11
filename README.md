@@ -1,7 +1,7 @@
 # nest
 Udemy course Master NestJS - The JavaScript Node.js Framework
 
-## TO run the app:
+## To run the app:
 > docker-compose up
 > npm run start:dev
 
@@ -11,6 +11,7 @@ Udemy course Master NestJS - The JavaScript Node.js Framework
 npm install -g @nestjs/cli
 npm install -g @nestjs/mapped-types
 npm install --save @nestjs/typeorm typeorm mysql
+npm install --save class-validator class-transformer
 
 nest new project-name
 nest start
