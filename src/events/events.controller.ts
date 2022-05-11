@@ -11,49 +11,63 @@ import {
 import { CreateEventDTO } from './create-event.dto';
 import { UpdateEventDTO } from './update-event.dto';
 import { Event } from './event.entity';
+import { Like, MoreThan, MoreThanOrEqual, Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
 
 @Controller('events')
 export class EventsController {
-  private events: Event[] = [];
-
+  constructor(
+    @InjectRepository(Event)
+    private readonly repository: Repository<Event>,
+  ) {}
   @Get()
-  findAll() {
-    return this.events;
+  async findAll() {
+    return await this.repository.find();
+  }
+  @Get('search')
+  async practice() {
+    return await this.repository.find({
+      select: ['id', 'name', 'when'],
+      where: [
+        {
+          id: MoreThanOrEqual(3),
+          when: MoreThan(new Date('2021-02-12T13:00:00')),
+        },
+        {
+          description: Like('%meet%'),
+        },
+      ],
+      take: 3,
+      order: {
+        id: 'DESC',
+      },
+    });
   }
   @Get(':id')
-  findOne(@Param('id') id) {
-    const res = this.events.find((x) => x.id === parseInt(id));
-    return res ? res : { error: 'Evento não encontrado' };
+  async findOne(@Param('id') id) {
+    return await this.repository.findOne(id);
   }
   @Post()
-  create(@Body() input: CreateEventDTO) {
-    const event = {
+  async create(@Body() input: CreateEventDTO) {
+    return await this.repository.save({
       ...input,
       when: new Date(input.when),
-      id: this.events.reduce((t, event) => (t = Math.max(t, event.id)), 0) + 1,
-    };
-    this.events.push(event);
-    return event;
+    });
   }
   @Patch(':id')
-  update(@Param('id') id, @Body() input: UpdateEventDTO) {
-    const index = this.events.findIndex((event) => event.id === parseInt(id));
+  async update(@Param('id') id, @Body() input: UpdateEventDTO) {
+    const event = await this.repository.findOne(id);
 
-    if (index < 0) return null;
-
-    this.events[index] = {
-      ...this.events[index],
+    return await this.repository.save({
+      ...event,
       ...input,
-      when: input?.when
-      ? new Date(input?.when)
-      : this.events[index]?.when || null,
-    };
-
-    return this.events[index];
+      when: input?.when ? new Date(input?.when) : event.when || null,
+    });
   }
   @Delete(':id')
   @HttpCode(204)
-  remove(@Param('id') id) {
-    this.events = this.events.filter((event) => event.id !== parseInt(id));
+  async remove(@Param('id') id) {
+    const event = await this.repository.findOne(id);
+    await this.repository.remove(event);
   }
 }
