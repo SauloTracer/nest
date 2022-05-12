@@ -9,6 +9,7 @@ import {
   HttpCode,
   ParseIntPipe,
   ValidationPipe,
+  Logger,
 } from '@nestjs/common';
 import { CreateEventDTO } from './create-event.dto';
 import { UpdateEventDTO } from './update-event.dto';
@@ -18,13 +19,17 @@ import { InjectRepository } from '@nestjs/typeorm';
 
 @Controller('events')
 export class EventsController {
+  private readonly logger = new Logger(EventsController.name);
   constructor(
     @InjectRepository(Event)
     private readonly repository: Repository<Event>,
   ) {}
   @Get()
   async findAll() {
-    return await this.repository.find();
+    this.logger.debug('Hit the findAll endpoint');
+    const events = await this.repository.find();
+    this.logger.log(`Retrieved ${events.length} events`);
+    return events;
   }
   @Get('search')
   async practice() {
