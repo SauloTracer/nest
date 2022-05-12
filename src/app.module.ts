@@ -5,20 +5,24 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { Event } from './events/event.entity';
 import { EventsController } from './events/events.controller';
+import ormConfig from './config/orm.config';
 import { EventsModule } from './events/events.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot(),
-    TypeOrmModule.forRoot({
-      type: 'mysql',
-      host: process.env.DATABASE_HOST,
-      port: Number(process.env.DATABASE_PORT),
-      username: process.env.DATABASE_USER,
-      password: process.env.DATABASE_PASSWORD,
-      database: process.env.DATABASE_NAME,
-      entities: [Event],
-      synchronize: Boolean(process.env.DATABASE_SYNC), // ambient === dev
+    ConfigModule.forRoot({
+      isGlobal: true,
+      load: [ormConfig],
+      /* 
+        Usado para habilitar interpolação de variáveis nos arquivos .env
+        Ex.:
+        VAR_1=gmail.com
+        VAR_2=saulo.tracer@${VAR_1}
+      */
+      expandVariables: true,
+    }),
+    TypeOrmModule.forRootAsync({
+      useFactory: ormConfig,
     }),
     EventsModule,
   ],
