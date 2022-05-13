@@ -10,6 +10,7 @@ import {
   ParseIntPipe,
   ValidationPipe,
   Logger,
+  NotFoundException,
 } from '@nestjs/common';
 import { CreateEventDTO } from './create-event.dto';
 import { UpdateEventDTO } from './update-event.dto';
@@ -52,7 +53,13 @@ export class EventsController {
   }
   @Get(':id')
   async findOne(@Param('id', ParseIntPipe) id: number) {
-    return await this.repository.findOne(id);
+    const event = await this.repository.findOne(id);
+
+    if (!event) {
+      throw new NotFoundException();
+    }
+
+    return event;
   }
   @Post()
   async create(@Body(ValidationPipe) input: CreateEventDTO) {
@@ -68,6 +75,10 @@ export class EventsController {
   ) {
     const event = await this.repository.findOne(id);
 
+    if (!event) {
+      throw new NotFoundException();
+    }
+
     return await this.repository.save({
       ...event,
       ...input,
@@ -78,6 +89,11 @@ export class EventsController {
   @HttpCode(204)
   async remove(@Param('id', ParseIntPipe) id: number) {
     const event = await this.repository.findOne(id);
+
+    if (!event) {
+      throw new NotFoundException();
+    }
+
     await this.repository.remove(event);
   }
 }

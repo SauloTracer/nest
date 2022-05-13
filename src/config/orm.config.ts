@@ -1,5 +1,6 @@
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { Event } from '../events/event.entity';
+import { Attendee } from '../events/attendee.entity';
 
 export default (): TypeOrmModuleOptions => ({
   type: 'mysql',
@@ -8,6 +9,6 @@ export default (): TypeOrmModuleOptions => ({
   username: process.env.DATABASE_USER,
   password: process.env.DATABASE_PASSWORD,
   database: process.env.DATABASE_NAME,
-  entities: [Event],
+  entities: [Event, Attendee],
   synchronize: Boolean(process.env.DATABASE_SYNC), // ambient === dev
 });
