@@ -32,7 +32,7 @@ export class EventsController {
     this.logger.log(`Retrieved ${events.length} events`);
     return events;
   }
-  @Get('search')
+  @Get('practice')
   async practice() {
     return await this.repository.find({
       select: ['id', 'name', 'when'],
@@ -51,6 +51,12 @@ export class EventsController {
       },
     });
   }
+
+  @Get('practice2')
+  async practice2() {
+    return await this.repository.findOne(1, { relations: ['attendees'] });
+  }
+
   @Get(':id')
   async findOne(@Param('id', ParseIntPipe) id: number) {
     const event = await this.repository.findOne(id);
